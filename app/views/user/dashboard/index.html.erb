@@ -1,0 +1,153 @@
+  <main class="d-flex body-font">
+    <%= render 'common/side' %>
+    <div class="flex-grow-1">
+      <%= render 'common/header'%>
+      <main class="container-fluid py-4 px-4">
+        <div class="mb-4">
+          <h2 class="h4 fw-bold text-dark">Certifications Dashboard</h2>
+          <p class="text-muted"> Explore, manage, and track your certification journey </p>
+        </div>
+        <ul class="nav nav-tabs mb-4" id="certificationsTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="all-certifications-tab" data-bs-toggle="tab" data-bs-target="#all-certifications" type="button" role="tab" aria-controls="all-certifications" aria-selected="true"> All Certifications </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="purchased-certifications-tab" data-bs-toggle="tab" data-bs-target="#purchased-certifications" type="button" role="tab" aria-controls="purchased-certifications" aria-selected="false"> Purchased Certifications </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="featured-certifications-tab" data-bs-toggle="tab" data-bs-target="#featured-certifications" type="button" role="tab" aria-controls="featured-certifications" aria-selected="false"> Featured Certifications </button>
+          </li>
+        </ul>
+        <div class="tab-content" id="certificationsTabContent">
+          <div class="tab-pane fade show active" id="all-certifications" role="tabpanel" aria-labelledby="all-certifications-tab">
+            <div class="row g-3 mb-4">
+              <div class="col-md">
+                <div class="position-relative">
+                  <i class="ri-search-line position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                  <input type="search" class="form-control ps-5" placeholder="Search certifications..." />
+                </div>
+              </div>
+              <div class="col-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary d-flex align-items-center rounded-button">
+                  <i class="ri-filter-line me-2"></i>Filter <i class="ri-arrow-down-s-line ms-2"></i>
+                </button>
+                <button class="btn btn-outline-secondary d-flex align-items-center rounded-button">
+                  <i class="ri-sort-desc me-2"></i>Sort <i class="ri-arrow-down-s-line ms-2"></i>
+                </button>
+              </div>
+            </div>
+            <div class="bg-light rounded p-4 border mb-4">
+              <div class="row g-0">
+                <div class="col-md-8">
+                  <span class="badge bg-primary-subtle text-primary mb-2">Featured</span>
+                  <h3 class="h5 fw-bold text-dark"> Advanced Cloud Computing Certification </h3>
+                  <p class="text-muted"> Master cloud architecture, deployment, security, and optimization with this comprehensive certification program designed for IT professionals. </p>
+                  <div class="text-warning mb-2">
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-fill"></i>
+                    <i class="ri-star-half-fill"></i>
+                    <span class="text-muted small">4.7 (328 reviews)</span>
+                  </div>
+                  <div class="d-flex flex-wrap gap-3 text-muted small mb-3">
+                    <div>
+                      <i class="ri-time-line me-1"></i>40 hours
+                    </div>
+                    <div>
+                      <i class="ri-book-open-line me-1"></i>12 modules
+                    </div>
+                    <div>
+                      <i class="ri-medal-line me-1"></i>Industry recognized
+                    </div>
+                  </div>
+                  <button class="btn btn-primary rounded-button me-2"> Enroll Now </button>
+                  <button class="btn btn-outline-secondary rounded-button"> Learn More </button>
+                </div>
+                <div class="col-md-4 d-flex align-items-center justify-content-center">
+                  <img src="https://readdy.ai/api/search-image?query=modern%20cloud%20computing%20illustration%20with%20server%20racks%2C%20cloud%20symbols%2C%20and%20digital%20connections%2C%20minimalist%20style%2C%20blue%20color%20scheme%2C%20professional%2C%20clean%20design&width=400&height=300&seq=2&orientation=landscape" class="img-fluid rounded shadow" alt="Cloud" />
+                </div>
+              </div>
+            </div>
+            <div class="row g-4">
+              <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                  <div class="position-relative">
+                    <img src="https://via.placeholder.com/400x200" class="card-img-top object-fit-cover" style="height: 200px" alt="..." />
+                    <span class="position-absolute top-0 end-0 m-2 badge bg-success-subtle text-success">Purchased</span>
+                  </div>
+                  <div class="card-body d-flex flex-column">
+                    <h5 class="card-title fw-semibold text-dark"> Data Science Fundamentals </h5>
+                    <p class="card-text text-muted small"> Learn essential data science concepts, statistical analysis, and machine learning algorithms. </p>
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Progress</span>
+                        <span>68%</span>
+                      </div>
+                      <div class="progress" style="height: 6px">
+                        <div class="progress-bar" role="progressbar" style="width: 68%"></div>
+                      </div>
+                    </div>
+                    <button class="btn btn-primary w-100 mt-auto rounded-button"> Continue Learning </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap mt-5">
+              <p class="text-muted small mb-2 mb-md-0"> Showing <strong>1</strong> to <strong>6</strong> of <strong>24</strong> results </p>
+              <nav>
+                <ul class="pagination mb-0">
+                  <li class="page-item disabled">
+                    <a class="page-link" href="#">
+                      <i class="ri-arrow-left-s-line"></i>
+                    </a>
+                  </li>
+                  <li class="page-item active">
+                    <a class="page-link" href="#">1</a>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" href="#">2</a>
+                  </li>
+                  <li class="page-item d-none d-md-inline">
+                    <a class="page-link" href="#">3</a>
+                  </li>
+                  <li class="page-item disabled">
+                    <span class="page-link">…</span>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" href="#">4</a>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" href="#">
+                      <i class="ri-arrow-right-s-line"></i>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="purchased-certifications" role="tabpanel" aria-labelledby="purchased-certifications-tab">
+            <p>Content for Purchased Certifications will go here.</p>
+          </div>
+          <div class="tab-pane fade" id="featured-certifications" role="tabpanel" aria-labelledby="featured-certifications-tab">
+            <p>Content for Featured Certifications will go here.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script>
+      // Optional: Add a class to body when sidebar is hidden on small screens
+      // This can be used to adjust main content area
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebarMenu');
+        if (sidebar) {
+          sidebar.addEventListener('hide.bs.collapse', function() {
+            document.body.classList.add('sidebar-hidden');
+          });
+          sidebar.addEventListener('show.bs.collapse', function() {
+            document.body.classList.remove('sidebar-hidden');
+          });
+        }
+      });
+    </script>
+  </main>

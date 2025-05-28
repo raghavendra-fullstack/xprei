@@ -1,0 +1,2 @@
+class SchoolExam < ApplicationRecord
+end

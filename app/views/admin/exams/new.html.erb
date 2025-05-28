@@ -1,0 +1,763 @@
+  <main class="d-flex body-font">
+    <%= render 'common/side' %>
+    <div class="flex-grow-1">
+      <%= render 'common/header'%>
+      <main class="container-fluid py-4 px-4">
+        <div>
+          <form id="examForm" action="" method="post" class="php-email-form">
+            <div class="card">
+              <div class="card-header"> Exam Information </div>
+              <div class="card-body">
+                <div class="row gy-3">
+                  <div class="col-md-6">
+                    <input type="text" class="form-control" id="examTitle" name="examTitle" placeholder="Exam Title" required>
+                  </div>
+                  <div class="col-md-6">
+                    <input type="number" class="form-control" id="examDuration" name="examDuration" placeholder="Duration (minutes)" min="1" required>
+                  </div>
+                </div>
+                <div class="mb-3 mt-3">
+                  <textarea class="form-control" id="examDescription" name="examDescription" rows="3" placeholder="Exam Description"></textarea>
+                </div>
+                <div class="mb-3">
+                  <input type="number" class="form-control" id="examTotalMarks" name="examTotalMarks" placeholder="Total Marks (Overall Exam)" min="0" required>
+                </div>
+                <div class="mb-3">
+                  <label for="examImage" class="form-label">Upload Exam Header Image (Optional)</label>
+                  <input class="form-control" type="file" id="examImage" name="examImage" accept="image/*">
+                  <div class="form-text">Max 2MB. Recommended for branding or visual context.</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header bg-info"> Questions <button type="button" class="btn btn-light btn-sm" id="addQuestionBtn">Add Question</button>
+              </div>
+              <div class="card-body" id="questionsContainer">
+                <p class="text-muted text-center" id="noQuestionsMessage">Click "Add Question" to start adding questions.</p>
+                <hr class="my-3">
+                <div class="mb-3">
+                  <label for="csvFileInput" class="form-label">Import Questions from CSV</label>
+                  <input class="form-control" type="file" id="csvFileInput" accept=".csv">
+                  <div class="form-text"> Upload a CSV file to import multiple questions. <br> **CSV Format (Headers are ignored, order matters):** `Question Text,Type,Marks,Option1,Option2,Option3,Option4,Correct Answer` <br> Example Row: `"What is 2+2?",mcq,1,"3","4","5","6","4"` <br> Example Row: `"The capital of France is ______.",fill_blanks,1,"Paris"` <br> Example Row: `"Water boils at 100 degrees Celsius.",true_false,1,"True"` </div>
+                  <button type="button" class="btn btn-primary mt-3" id="importCsvBtn">Import CSV Questions</button>
+                </div>
+                <hr class="my-3">
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="loading"></div>
+              <div class="error-message"></div>
+              <div class="sent-message"></div>
+              <button type="submit" class="btn btn-success btn-lg me-3">Save Exam</button>
+              <button type="reset" class="btn btn-secondary btn-lg">Reset Form</button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </main>
+
+
+
+
+      <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+            color: #343a40;
+            padding: 15px; /* Reduced body padding */
+        }
+        .container {
+            max-width: 850px; /* Reduced max-width */
+            margin-top: 3rem; /* Reduced top margin */
+            margin-bottom: 3rem; /* Reduced bottom margin */
+        }
+        h2 {
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 0.8rem; /* Reduced margin */
+            font-size: 2rem; /* Slightly smaller heading */
+        }
+        .form-description {
+            color: #6c757d;
+            font-size: 1rem; /* Smaller font size */
+            margin-bottom: 2rem; /* Reduced spacing */
+        }
+
+        .card {
+            border: none;
+            border-radius: 8px; /* Slightly smaller border-radius */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.06); /* Lighter, less spread shadow */
+            overflow: hidden;
+            margin-bottom: 1.5rem; /* Reduced margin */
+            padding: 0;
+        }
+        .card-header {
+            background-color: #fff;
+            color: #343a40;
+            font-weight: 600;
+            padding: 1rem 1.5rem; /* Reduced padding */
+            font-size: 1.1em; /* Slightly smaller font size */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .card-header.bg-info {
+            background-color: #0d6efd !important;
+            color: #fff !important;
+        }
+        .card-body {
+            padding: 1.5rem; /* Reduced padding */
+        }
+
+        /* Input Field Styling */
+        .form-control, .form-select {
+            border-radius: 6px; /* Slightly less rounded */
+            padding: 0.75rem 1rem; /* Reduced padding */
+            border: 1px solid #ced4da;
+            transition: all 0.2s ease-in-out;
+            font-size: 0.95rem; /* Slightly smaller font size */
+            color: #495057;
+        }
+        .form-control::placeholder {
+            color: #adb5bd;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        textarea.form-control {
+            min-height: 100px; /* Slightly shorter textarea */
+            resize: vertical;
+        }
+        .form-label {
+            display: none;
+        }
+        .form-label[for="examImage"], .form-label[for="csvFileInput"] {
+             display: block;
+             font-weight: 500;
+             color: #555;
+             margin-bottom: .4rem; /* Reduced margin */
+             margin-top: 1rem; /* Reduced margin */
+             font-size: 0.95rem; /* Smaller font size for these labels */
+        }
+        .form-text {
+            font-size: 0.8em; /* Smaller font size */
+            color: #6c757d;
+            margin-top: 0.15rem; /* Reduced margin */
+        }
+
+        /* Question Card Specific Styling */
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 6px; /* Slightly smaller border-radius */
+            padding: 1.25rem; /* Reduced padding */
+            margin-bottom: 1.25rem; /* Reduced margin */
+            box-shadow: 0 1px 6px rgba(0,0,0,0.04); /* Even softer shadow */
+        }
+        .question-card h5 {
+            color: #343a40;
+            font-weight: 600;
+            margin-bottom: 0;
+            font-size: 1em; /* Slightly smaller font size */
+        }
+        .question-card .btn-danger {
+            padding: 0.3rem 0.5rem; /* Reduced padding */
+            font-size: 0.8em; /* Smaller font size */
+            border-radius: 4px; /* Slightly smaller radius */
+        }
+
+        .answer-option-row {
+            margin-bottom: 0.5rem; /* Reduced margin */
+        }
+        .answer-option-row .form-control {
+            padding: 0.6rem 0.8rem; /* Reduced padding */
+            font-size: 0.9rem; /* Smaller font size */
+        }
+        .answer-option-row .form-check-input {
+            width: 1.1em; /* Smaller radio button */
+            height: 1.1em;
+        }
+        .answer-option-row .btn-outline-danger {
+            padding: 0.25rem 0.4rem; /* Reduced padding */
+            font-size: 0.75rem; /* Smaller font size */
+        }
+        .add-mcq-option-btn {
+            font-size: 0.85em; /* Slightly smaller */
+            padding: 0.4rem 0.8rem; /* Reduced padding */
+            border-radius: 6px; /* Slightly smaller radius */
+        }
+
+        .fill-blanks-explanation, .omr-explanation {
+            font-size: 0.85em; /* Smaller font size */
+            margin-top: 0.8rem; /* Reduced margin */
+            padding: 0.8rem; /* Reduced padding */
+        }
+        .fill-blanks-explanation ul, .omr-explanation p {
+            margin-bottom: 0; /* Remove bottom margin from last element in explanation */
+        }
+        .fill-blanks-explanation ul li {
+            padding-left: 0;
+            margin-bottom: 0.2em;
+        }
+
+
+        /* Submit/Reset Buttons */
+        .btn-success, .btn-secondary {
+            font-weight: 600;
+            padding: 0.7rem 2rem; /* Reduced padding */
+            font-size: 1rem; /* Smaller font size */
+            border-radius: 40px; /* Slightly less pill-shaped */
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15); /* Reduced shadow */
+        }
+        .btn-success:hover, .btn-secondary:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Feedback Messages */
+        .loading, .error-message, .sent-message {
+            padding: 1rem; /* Reduced padding */
+            margin-top: 1rem; /* Reduced margin */
+            margin-bottom: 1rem; /* Reduced margin */
+            font-size: 0.95rem; /* Smaller font size */
+        }
+        .loading:before {
+            width: 18px; /* Smaller spinner */
+            height: 18px;
+        }
+    </style>
+
+
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get references to elements
+            const addQuestionBtn = document.getElementById('addQuestionBtn');
+            const questionsContainer = document.getElementById('questionsContainer');
+            const csvFileInput = document.getElementById('csvFileInput');
+            const importCsvBtn = document.getElementById('importCsvBtn');
+
+            let questionCount = 0; // Global counter for unique IDs
+
+            // Feedback message elements
+            const loadingDiv = document.querySelector('.loading');
+            const errorMessageDiv = document.querySelector('.error-message');
+            const sentMessageDiv = document.querySelector('.sent-message');
+
+            // Function to display feedback messages
+            function showFeedback(type, message = '') {
+                // Hide all messages first
+                loadingDiv.style.display = 'none';
+                errorMessageDiv.style.display = 'none';
+                sentMessageDiv.style.display = 'none';
+
+                // Display the relevant message
+                if (type === 'loading') {
+                    loadingDiv.textContent = 'Loading...';
+                    loadingDiv.style.display = 'block';
+                } else if (type === 'success') {
+                    sentMessageDiv.textContent = message || 'Exam saved successfully!';
+                    sentMessageDiv.style.display = 'block';
+                } else if (type === 'error') {
+                    errorMessageDiv.textContent = message || 'An unexpected error occurred. Please try again.';
+                    errorMessageDiv.style.display = 'block';
+                }
+            }
+
+            // Function to add a new question subform
+            function addQuestion(questionData = {}) { // Allow pre-filling with questionData
+                questionCount++; // Increment for unique ID
+                const currentQuestionId = questionCount;
+
+                const noQuestionsMessage = document.getElementById('noQuestionsMessage');
+                if (noQuestionsMessage) {
+                    noQuestionsMessage.remove(); // Remove "no questions" message if present
+                }
+
+                const questionTextVal = questionData.text || '';
+                const questionTypeVal = questionData.type || '';
+                const questionMarksVal = questionData.marks || 1;
+                const correctAnswerVal = questionData.correctAnswer || '';
+                const options = questionData.options || [];
+
+                // Construct the HTML for a new question card
+                const questionHtml = `
+                    <div class="question-card" id="questionCard_${currentQuestionId}">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>Question <span class="question-number">${questionsContainer.querySelectorAll('.question-card').length + 1}</span></h5>
+                            <button type="button" class="btn btn-danger btn-sm remove-question-btn" data-question-id="${currentQuestionId}">Remove</button>
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="form-control" id="questionText_${currentQuestionId}" name="questions[${currentQuestionId}][text]" rows="2" placeholder="Question Text" required>${questionTextVal}</textarea>
+                            <div class="form-text text-muted">
+                                For 'Fill Blanks', use underscores like: "The capital of France is ______."
+                            </div>
+                        </div>
+                        <div class="row gy-3 mb-3">
+                            <div class="col-md-6">
+                                <select class="form-select question-type-select" id="questionType_${currentQuestionId}" name="questions[${currentQuestionId}][type]" data-question-id="${currentQuestionId}" required>
+                                    <option value="">Select Question Type</option>
+                                    <option value="mcq" ${questionTypeVal === 'mcq' ? 'selected' : ''}>Multiple Choice</option>
+                                    <option value="true_false" ${questionTypeVal === 'true_false' ? 'selected' : ''}>True/False</option>
+                                    <option value="short_answer" ${questionTypeVal === 'short_answer' ? 'selected' : ''}>Short Answer</option>
+                                    <option value="fill_blanks" ${questionTypeVal === 'fill_blanks' ? 'selected' : ''}>Fill Blanks</option>
+                                    <option value="omr_type" ${questionTypeVal === 'omr_type' ? 'selected' : ''}>OMR Type (Placeholder)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="number" class="form-control" id="questionMarks_${currentQuestionId}" name="questions[${currentQuestionId}][marks]" min="1" value="${questionMarksVal}" placeholder="Marks" required>
+                            </div>
+                        </div>
+
+                        <div class="answer-options-container" id="answerOptionsContainer_${currentQuestionId}">
+                            </div>
+
+                        <div class="mb-3 correct-answer-field" id="correctAnswerField_${currentQuestionId}" style="display: none;">
+                            <input type="text" class="form-control" id="correctAnswer_${currentQuestionId}" name="questions[${currentQuestionId}][correctAnswer]" placeholder="Correct Answer(s)" value="${correctAnswerVal}">
+                            <div class="form-text text-muted">
+                                For Short Answer: exact text. For Fill Blanks: comma-separated answers (e.g., "Paris,France"). For MCQ/True/False, this is handled by radio buttons.
+                            </div>
+                        </div>
+                    </div>
+                `;
+                questionsContainer.insertAdjacentHTML('beforeend', questionHtml);
+
+                // Manually trigger change event for the newly added select to populate options
+                const newQuestionTypeSelect = document.getElementById(`questionType_${currentQuestionId}`);
+                if (newQuestionTypeSelect) {
+                    // This is important to ensure the correct answer fields are set up
+                    // based on the loaded questionTypeVal
+                    newQuestionTypeSelect.dispatchEvent(new Event('change'));
+
+                    // If it's an MCQ from CSV, populate options and select correct one
+                    if (questionTypeVal === 'mcq' && options.length > 0) {
+                        const mcqOptionsContainer = document.getElementById(`mcqOptions_${currentQuestionId}`);
+                        if (mcqOptionsContainer) {
+                            // Clear default A, B options added by change event
+                            mcqOptionsContainer.innerHTML = '';
+                            options.forEach((optText, index) => {
+                                const isCorrect = (questionData.correctAnswer === optText); // Match by value for correct answer
+                                const newOptionHtml = `
+                                    <div class="answer-option-row">
+                                        <input type="text" class="form-control" name="questions[${currentQuestionId}][options][]" placeholder="Option ${String.fromCharCode(65 + index)}" value="${optText}" required>
+                                        <input type="radio" class="form-check-input" name="questions[${currentQuestionId}][correctMcqAnswer]" value="${index}" ${isCorrect ? 'checked' : ''} title="Set as correct answer">
+                                        <button type="button" class="btn btn-outline-danger btn-sm remove-option-btn"><i class="bi bi-x-lg"></i></button>
+                                    </div>
+                                `;
+                                mcqOptionsContainer.insertAdjacentHTML('beforeend', newOptionHtml);
+                            });
+                        }
+                    } else if (questionTypeVal === 'true_false') {
+                         const correctTfRadio = document.getElementById(`tf${correctAnswerVal}_${currentQuestionId}`);
+                         if (correctTfRadio) {
+                            correctTfRadio.checked = true;
+                         }
+                    }
+                }
+
+                updateQuestionNumbers(); // Update displayed question numbers
+            }
+
+            // Function to re-number questions displayed (for user clarity)
+            function updateQuestionNumbers() {
+                const questionCards = questionsContainer.querySelectorAll('.question-card');
+                questionCards.forEach((card, index) => {
+                    const questionNumberSpan = card.querySelector('.question-number');
+                    if (questionNumberSpan) {
+                        questionNumberSpan.textContent = index + 1; // Display 1-based index
+                    }
+                });
+            }
+
+            // --- Event Listeners for Dynamic Elements (using Event Delegation) ---
+            questionsContainer.addEventListener('click', function(e) {
+                // Handle "Remove Question" button click
+                if (e.target.classList.contains('remove-question-btn') || e.target.closest('.remove-question-btn')) {
+                    const btn = e.target.closest('.remove-question-btn');
+                    const questionId = btn.dataset.questionId;
+                    const questionCard = document.getElementById(`questionCard_${questionId}`);
+                    if (questionCard) {
+                        questionCard.remove();
+                        if (questionsContainer.children.length === 0) {
+                            questionsContainer.innerHTML = '<p class="text-muted text-center" id="noQuestionsMessage">Click "Add Question" to start adding questions.</p>';
+                        }
+                        updateQuestionNumbers();
+                    }
+                }
+
+                // Handle "Add Option" button for MCQ questions
+                if (e.target.classList.contains('add-mcq-option-btn')) {
+                    const questionId = e.target.dataset.questionId;
+                    const mcqOptionsContainer = document.getElementById(`mcqOptions_${questionId}`);
+                    const optionIndex = mcqOptionsContainer.children.length;
+
+                    const nextLetter = String.fromCharCode(65 + optionIndex);
+
+                    const newOptionHtml = `
+                        <div class="answer-option-row">
+                            <input type="text" class="form-control" name="questions[${questionId}][options][]" placeholder="Option ${nextLetter}" required>
+                            <input type="radio" class="form-check-input" name="questions[${questionId}][correctMcqAnswer]" value="${optionIndex}" title="Set as correct answer">
+                            <button type="button" class="btn btn-outline-danger btn-sm remove-option-btn"><i class="bi bi-x-lg"></i></button>
+                        </div>
+                    `;
+                    mcqOptionsContainer.insertAdjacentHTML('beforeend', newOptionHtml);
+                }
+
+                // Handle "Remove Option" button for MCQ questions
+                if (e.target.classList.contains('remove-option-btn') || e.target.closest('.remove-option-btn')) {
+                    const btn = e.target.closest('.remove-option-btn');
+                    const optionRow = btn.closest('.answer-option-row');
+                    if (optionRow) {
+                        const mcqOptionsContainer = optionRow.closest('[id^="mcqOptions_"]');
+                        optionRow.remove();
+
+                        // Re-index radio button values and placeholders after removal
+                        if (mcqOptionsContainer) {
+                            Array.from(mcqOptionsContainer.children).forEach((row, index) => {
+                                const radioInput = row.querySelector('input[type="radio"]');
+                                if (radioInput) {
+                                    radioInput.value = index;
+                                }
+                                const textInput = row.querySelector('input[type="text"]');
+                                if (textInput) {
+                                    textInput.setAttribute('placeholder', `Option ${String.fromCharCode(65 + index)}`);
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Handle "Question Type" change event
+            questionsContainer.addEventListener('change', function(e) {
+                if (e.target.classList.contains('question-type-select')) {
+                    const questionId = e.target.dataset.questionId;
+                    const questionType = e.target.value;
+                    const answerOptionsContainer = document.getElementById(`answerOptionsContainer_${questionId}`);
+                    const correctAnswerField = document.getElementById(`correctAnswerField_${questionId}`);
+                    const correctAnswerInput = document.getElementById(`correctAnswer_${questionId}`);
+
+                    answerOptionsContainer.innerHTML = '';
+                    correctAnswerField.style.display = 'none';
+                    correctAnswerInput.value = '';
+                    correctAnswerInput.readOnly = false;
+
+                    if (questionType === 'mcq') {
+                        correctAnswerField.style.display = 'block';
+                        correctAnswerInput.setAttribute('placeholder', 'Correct answer will be set by radio button selection');
+                        correctAnswerInput.readOnly = true;
+
+                        const mcqOptionsHtml = `
+                            <label class="form-label mt-2" style="display: block;">Answer Options</label>
+                            <div id="mcqOptions_${questionId}">
+                                <div class="answer-option-row">
+                                    <input type="text" class="form-control" name="questions[${questionId}][options][]" placeholder="Option A" required>
+                                    <input type="radio" class="form-check-input" name="questions[${questionId}][correctMcqAnswer]" value="0" title="Set as correct answer">
+                                    <button type="button" class="btn btn-outline-danger btn-sm remove-option-btn"><i class="bi bi-x-lg"></i></button>
+                                </div>
+                                <div class="answer-option-row">
+                                    <input type="text" class="form-control" name="questions[${questionId}][options][]" placeholder="Option B" required>
+                                    <input type="radio" class="form-check-input" name="questions[${questionId}][correctMcqAnswer]" value="1" title="Set as correct answer">
+                                    <button type="button" class="btn btn-outline-danger btn-sm remove-option-btn"><i class="bi bi-x-lg"></i></button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm mt-2 add-mcq-option-btn" data-question-id="${questionId}">Add Option</button>
+                        `;
+                        answerOptionsContainer.innerHTML = mcqOptionsHtml;
+                    } else if (questionType === 'true_false') {
+                        correctAnswerField.style.display = 'block';
+                        correctAnswerInput.readOnly = true;
+                        correctAnswerInput.setAttribute('placeholder', 'Correct answer set by True/False selection');
+
+                        const tfOptionsHtml = `
+                            <label class="form-label mt-2" style="display: block;">Correct Answer</label>
+                            <div class="mb-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="questions[${questionId}][correctAnswer]" id="tfTrue_${questionId}" value="True" required>
+                                    <label class="form-check-label" for="tfTrue_${questionId}">True</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="questions[${questionId}][correctAnswer]" id="tfFalse_${questionId}" value="False" required>
+                                    <label class="form-check-label" for="tfFalse_${questionId}">False</label>
+                                </div>
+                            </div>
+                        `;
+                        answerOptionsContainer.innerHTML = tfOptionsHtml;
+                    } else if (questionType === 'short_answer') {
+                        correctAnswerField.style.display = 'block';
+                        correctAnswerInput.setAttribute('placeholder', 'Enter the exact short answer');
+                    } else if (questionType === 'fill_blanks') {
+                        correctAnswerField.style.display = 'block';
+                        correctAnswerInput.setAttribute('placeholder', 'Comma-separated correct answers (e.g., "Paris,France")');
+                        const fillBlanksExplanation = `
+                            <div class="alert alert-info mt-2 fill-blanks-explanation">
+                                **How to use Fill Blanks:**
+                                <ul>
+                                    <li>In the **Question Text** field, use \`______\` (six underscores) for each blank.</li>
+                                    <li>In the **Correct Answer(s)** field, provide the correct answers for each blank, separated by commas. The order matters!</li>
+                                </ul>
+                            </div>
+                        `;
+                        answerOptionsContainer.innerHTML = fillBlanksExplanation;
+                    } else if (questionType === 'omr_type') {
+                        correctAnswerField.style.display = 'block';
+                        correctAnswerInput.setAttribute('placeholder', 'Specific OMR format (e.g., "1-A,2-C")');
+                        const omrExplanation = `
+                             <div class="alert alert-warning mt-2 omr-explanation">
+                                 **OMR Type (Placeholder):**
+                                 <p>This type typically involves a predefined set of bubbles/options. You might define the correct answers here based on how your OMR system parses inputs (e.g., "1-A, 2-C" for Question 1 Option A, Question 2 Option C).</p>
+                                 <p>Full OMR functionality requires specific backend processing and potentially image recognition, which is beyond this basic form.</p>
+                             </div>
+                        `;
+                        answerOptionsContainer.innerHTML = omrExplanation;
+                    }
+                }
+            });
+
+            // --- CSV Import Logic ---
+            importCsvBtn.addEventListener('click', function() {
+                const file = csvFileInput.files[0];
+                if (!file) {
+                    showFeedback('error', 'Please select a CSV file to import.');
+                    return;
+                }
+
+                if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+                    showFeedback('error', 'Invalid file type. Please upload a .csv file.');
+                    return;
+                }
+
+                showFeedback('loading', 'Importing CSV questions...');
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(line => line.trim() !== '');
+
+                    if (lines.length <= 1) {
+                        showFeedback('error', 'CSV file is empty or contains only headers. No questions imported.');
+                        return;
+                    }
+
+                    const dataLines = lines.slice(1); // Skip header line
+
+                    let importedCount = 0;
+                    let errorRows = [];
+
+                    dataLines.forEach((line, lineIndex) => {
+                        // Basic CSV parsing: split by comma, but handle quoted strings
+                        // This regex attempts to split by comma outside of quotes, but it's basic.
+                        // For production, consider a robust CSV parser library (e.g., PapaParse).
+                        const cols = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+                        const processedCols = cols.map(col => col.trim().replace(/^"|"$/g, '')); // Clean up quotes
+
+                        if (processedCols.length < 3) {
+                            errorRows.push(`Row ${lineIndex + 2} (Malformed, too few columns: ${line.substring(0,50)}...)`);
+                            return;
+                        }
+
+                        try {
+                            const questionText = processedCols[0];
+                            const questionType = processedCols[1];
+                            const questionMarks = parseInt(processedCols[2]);
+
+                            if (isNaN(questionMarks) || questionMarks < 1) {
+                                throw new Error('Invalid marks (must be a positive number)');
+                            }
+                            if (!['mcq', 'true_false', 'short_answer', 'fill_blanks', 'omr_type'].includes(questionType)) {
+                                throw new Error(`Invalid question type "${questionType}"`);
+                            }
+
+                            let questionData = {
+                                text: questionText,
+                                type: questionType,
+                                marks: questionMarks,
+                                options: [],
+                                correctAnswer: ''
+                            };
+
+                            if (questionType === 'mcq') {
+                                // Options are from index 3 up to the second-to-last column
+                                const rawOptions = processedCols.slice(3, processedCols.length - 1);
+                                if (rawOptions.length < 2) throw new Error('MCQ needs at least 2 options');
+                                questionData.options = rawOptions;
+                                // Correct answer is the last column
+                                questionData.correctAnswer = processedCols[processedCols.length - 1];
+                                if (!questionData.options.includes(questionData.correctAnswer)) {
+                                     throw new Error('Correct answer for MCQ not found in provided options');
+                                }
+
+                            } else { // true_false, short_answer, fill_blanks, omr_type
+                                if (processedCols.length < 4) throw new Error('Missing correct answer for this type');
+                                questionData.correctAnswer = processedCols[3];
+                            }
+
+                            addQuestion(questionData); // Add question to the form
+                            importedCount++;
+
+                        } catch (error) {
+                            errorRows.push(`Row ${lineIndex + 2} (Error: ${error.message} - Data: "${line.substring(0,80)}...")`);
+                        }
+                    });
+
+                    if (importedCount > 0) {
+                        showFeedback('success', `Successfully imported ${importedCount} questions.`);
+                    } else if (errorRows.length > 0) {
+                         showFeedback('error', `No questions imported. Please check CSV format. Errors found in: ${errorRows.join('; ')}`);
+                    } else {
+                         showFeedback('error', 'No valid questions found in the CSV file. Please check content.');
+                    }
+                    csvFileInput.value = ''; // Clear file input
+                };
+
+                reader.onerror = function() {
+                    showFeedback('error', 'Failed to read CSV file. Please try again.');
+                };
+
+                reader.readAsText(file); // Read the file as text
+            });
+
+
+            // Initial add question button click handler
+            addQuestionBtn.addEventListener('click', addQuestion);
+
+            // Form Submission Handler
+            document.getElementById('examForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                showFeedback('loading', 'Saving Exam...');
+
+                if (!this.checkValidity()) {
+                    showFeedback('error', 'Please fill in all required fields correctly.');
+                    this.classList.add('was-validated');
+                    return;
+                }
+                this.classList.remove('was-validated');
+
+                // Using FormData to send mixed data (text + file)
+                let formDataToSend = new FormData();
+
+                // Append main exam details
+                formDataToSend.append('examTitle', document.getElementById('examTitle').value);
+                formDataToSend.append('examDescription', document.getElementById('examDescription').value);
+                formDataToSend.append('examDuration', document.getElementById('examDuration').value);
+                formDataToSend.append('examTotalMarks', document.getElementById('examTotalMarks').value);
+
+                // Append exam image file if selected
+                const examImageFile = document.getElementById('examImage').files[0];
+                if (examImageFile) {
+                    formDataToSend.append('examImage', examImageFile);
+                }
+
+                // Prepare questions data as a separate array for JSON stringification
+                const questionsData = [];
+                let validationErrorOccurred = false;
+
+                const questionCards = questionsContainer.querySelectorAll('.question-card');
+                questionCards.forEach((card) => {
+                    if (validationErrorOccurred) return;
+
+                    const question = {};
+                    const questionId = card.id.split('_')[1];
+
+                    question.text = card.querySelector(`#questionText_${questionId}`).value;
+                    question.type = card.querySelector(`#questionType_${questionId}`).value;
+                    question.marks = card.querySelector(`#questionMarks_${questionId}`).value;
+
+                    if (question.type === 'mcq') {
+                        question.options = [];
+                        card.querySelectorAll(`#mcqOptions_${questionId} .answer-option-row input[type="text"]`).forEach(input => {
+                            question.options.push(input.value);
+                        });
+                        const correctMcqAnswerRadio = card.querySelector(`input[name="questions[${questionId}][correctMcqAnswer]"]:checked`);
+                        if (correctMcqAnswerRadio) {
+                            question.correctAnswerIndex = correctMcqAnswerRadio.value;
+                            question.correctAnswer = question.options[question.correctAnswerIndex];
+                        } else {
+                            question.correctAnswer = null;
+                            showFeedback('error', `Please select a correct answer for question: "${question.text.substring(0, 50)}..."`);
+                            validationErrorOccurred = true;
+                            return;
+                        }
+                    } else if (question.type === 'true_false') {
+                         const correctTfAnswerRadio = card.querySelector(`input[name="questions[${questionId}][correctAnswer]"]:checked`);
+                         if (correctTfAnswerRadio) {
+                             question.correctAnswer = correctTfAnswerRadio.value;
+                         } else {
+                             question.correctAnswer = null;
+                             showFeedback('error', `Please select True or False for question: "${question.text.substring(0, 50)}..."`);
+                             validationErrorOccurred = true;
+                             return;
+                         }
+                    } else if (question.type === 'short_answer' || question.type === 'fill_blanks' || question.type === 'omr_type') {
+                        question.correctAnswer = card.querySelector(`#correctAnswer_${questionId}`).value;
+                        if (!question.correctAnswer.trim()) {
+                            showFeedback('error', `Please provide a correct answer for question: "${question.text.substring(0, 50)}..."`);
+                            validationErrorOccurred = true;
+                            return;
+                        }
+                    }
+
+                    questionsData.push(question);
+                });
+
+                if (validationErrorOccurred) {
+                    return; // Stop form submission if a validation error was found
+                }
+
+                // Append the questions array as a JSON string to FormData
+                formDataToSend.append('questions', JSON.stringify(questionsData));
+
+                // Log FormData for debugging (can be inspected in console)
+                // for (let pair of formDataToSend.entries()) { console.log(pair[0]+ ': ' + pair[1]); }
+
+
+                // --- Simulate API call (replace with your actual fetch/AJAX) ---
+                // For demonstration, we'll use a timeout:
+                setTimeout(() => {
+                    const success = Math.random() > 0.1; // Simulate 90% success rate
+                    if (success) {
+                        showFeedback('success', 'Exam saved successfully!');
+                        // Optional: Reset form after successful submission if needed
+                        // document.getElementById('examForm').reset();
+                        // questionsContainer.innerHTML = '<p class="text-muted text-center" id="noQuestionsMessage">Click "Add Question" to start adding questions.</p>';
+                        // questionCount = 0; // Reset counter for new form
+                        // addQuestion(); // Add initial question again
+                    } else {
+                        showFeedback('error', 'Simulated API failure. Please try again.');
+                    }
+                }, 1500); // Simulate 1.5 seconds network delay
+
+                // In a real application, you'd use fetch or XMLHttpRequest like this:
+                /*
+                fetch('/api/exams', { // Your backend endpoint
+                    method: 'POST',
+                    body: formDataToSend, // Send FormData directly
+                    // Do NOT set 'Content-Type': 'application/json' when sending FormData
+                    // The browser sets it automatically with 'multipart/form-data'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    showFeedback('success', 'Exam saved successfully!');
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showFeedback('error', `Failed to save exam: ${error.message}`);
+                });
+                */
+            });
+
+            // Add the first question when the page loads
+            addQuestion();
+        });
+    </script>
